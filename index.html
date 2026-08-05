@@ -1,80 +1,532 @@
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hello, Deno</title>
-  <link rel="preload" href="https://demo-styles.deno.deno.net/fonts/Moranga-Regular.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="preload" href="https://demo-styles.deno.deno.net/fonts/Moranga-Medium.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="preload" href="https://demo-styles.deno.deno.net/fonts/Recursive_Variable.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="stylesheet" href="https://demo-styles.deno.deno.net/styles.css">
-  <style>
-    img {
-      display: inline-block;
-      vertical-align: middle;
-    }
-  </style>
-</head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEXUS ROOT // SYSTEM LAUNCHER</title>
+<style>
+/* === DEFINE VARIABLES FIRST === */
+:root {
+    --red: #ff0033;
+    --black: #0a0a0a;
+}
 
+/* === NOW selection can use them === */
+::selection {
+    background: var(--red);
+    color: var(--black);
+    text-shadow: none;
+}
+ /* TRIANGLE - TOP RIGHT */
+/* TRIANGLE HUD - TOP RIGHT OF CONTAINER */
+.triangle-video-frame {
+    position: absolute; /* Locks it inside the container */
+    top: 35px;          /* Aligns with the H1 text line */
+    right: 40px;        /* Aligns with the container padding */
+    width: 140px;       /* Smaller, non-intrusive size */
+    height: 120px;      
+    
+    background-color: #b0b0b0; /* The 'border' color */
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+    z-index: 10;
+    pointer-events: none;
+    filter: drop-shadow(0 0 5px rgba(204, 0, 0, 0.5)); /* Red glow */
+    opacity: 0.9;
+}
+
+/* THE VIDEO INSIDE */
+.triangle-inner-video {
+    width: 100%;
+    height: 100%;
+    transform: scale(0.96); /* Thickness of the border */
+    transform-origin: center 65%;
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+    background: #000; 
+}
+
+.triangle-inner-video video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; 
+    opacity: 0.8; 
+}
+
+/* HIDE ON MOBILE to prevent text overlap */
+@media (max-width: 700px) {
+    .triangle-video-frame {
+        display: none;
+    }
+}                    
+</style>
+<style>
+    body {
+        background-color: #050505;
+        color: #b0b0b0;
+        font-family: 'Courier New', monospace;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        margin: 0;
+        overflow-x: hidden;
+    }
+
+    /* Scanline Overlay */
+    body::after {
+        content: " ";
+        display: block;
+        position: absolute;
+        top: 0; left: 0; bottom: 0; right: 0;
+        background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+        z-index: 2;
+        background-size: 100% 2px, 3px 100%;
+        pointer-events: none;
+    }
+
+    .container {
+        width: 900px;
+        max-width: 95%;
+        border: 1px solid #333;
+        padding: 40px;
+        box-shadow: 0 0 30px rgba(0,0,0,0.8);
+        background-color: #0a0a0a;
+        z-index: 1;
+        position: relative;
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+
+    h1 {
+        font-size: 3rem;
+        margin: 0 0 1rem 0;
+        color: #fff;
+        text-transform: uppercase;
+        letter-spacing: 5px;
+        text-shadow: 2px 2px 0px #cc0000;
+        border-bottom: 2px solid #cc0000;
+        padding-bottom: 10px;
+    }
+
+    .subtitle {
+        color: #cc0000;
+        font-size: 1rem;
+        margin-bottom: 40px;
+        text-transform: uppercase;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    /* --- THE APPLIANCE GRID --- */
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+        gap: 15px;
+        margin-bottom: 40px;
+    }
+
+    a.module-link {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        text-decoration: none;
+        background-color: #111;
+        border: 1px solid #333;
+        padding: 15px 15px;
+        color: #888;
+        transition: all 0.2s ease;
+    }
+
+    a.module-link:hover {
+        background-color: #cc0000;
+        color: #000;
+        border-color: #fff;
+        transform: translateX(5px);
+    }
+
+    .module-title {
+        font-weight: bold;
+        font-size: 1rem;
+        text-transform: uppercase;
+        display: block;
+    }
+
+    .module-meta {
+        font-size: 0.7rem;
+        opacity: 0.7;
+        display: block;
+        margin-top: 4px;
+    }
+
+    .status-badge {
+        font-size: 0.6rem;
+        padding: 1px 4px;
+        border: 1px solid #555;
+        margin-left: 5px;
+        float: right;
+    }
+
+    /* --- THE MANIFEST (YOUR WORK) --- */
+    .manifest-section {
+        border: 1px dashed #333;
+        background-color: #0e0e0e;
+        padding: 20px;
+        margin-bottom: 40px;
+        font-size: 0.9rem;
+    }
+
+    .manifest-header {
+        color: #cc0000;
+        font-weight: bold;
+        text-transform: uppercase;
+        margin-bottom: 15px;
+        letter-spacing: 2px;
+        border-bottom: 1px solid #222;
+        padding-bottom: 5px;
+    }
+
+    .manifest-row {
+        display: flex;
+        margin-bottom: 8px;
+        align-items: baseline;
+    }
+
+    .manifest-label {
+        width: 120px;
+        color: #555;
+        font-weight: bold;
+        flex-shrink: 0;
+    }
+
+    .manifest-data {
+        color: #999;
+    }
+    
+    .manifest-data a {
+        color: #b0b0b0;
+        text-decoration: none;
+        border-bottom: 1px dotted #444;
+        margin-right: 10px;
+        transition: color 0.2s;
+    }
+
+    .manifest-data a:hover {
+        color: #fff;
+        border-color: #cc0000;
+    }
+
+    /* --- THE NETWORK UPLINKS (EXTERNAL LINKS) --- */
+    .directory-section {
+        border-top: 1px solid #333;
+        padding-top: 20px;
+    }
+
+    .directory-header {
+        color: #444;
+        font-size: 0.7rem;
+        margin-bottom: 15px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .directory-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 20px;
+    }
+
+    a.dir-link {
+        color: #555;
+        text-decoration: none;
+        font-size: 0.75rem;
+        transition: color 0.2s ease;
+        display: inline-block;
+    }
+
+    a.dir-link::before { content: "+ "; color: #333; }
+    a.dir-link:hover { color: #cc0000; }
+
+    /* --- FOOTER STYLES --- */
+   /* --- FOOTER STYLES --- */
+    .system-footer {
+        margin-top: 30px;
+        padding-top: 10px;
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.7rem;
+        color: #333;
+        border-top: 1px solid #1a1a1a;
+        position: relative; 
+    }
+
+    /* STORY BUTTON (The Trigger) */
+    details.learning-corner {
+        position: relative;
+        display: inline-block;
+        margin-left: 5px;
+    }
+
+    details.learning-corner summary {
+        color: #555; /* Neutral Grey text for "REDDIT..." */
+        cursor: pointer;
+        font-weight: bold;
+        transition: color 0.2s;
+        list-style: disclosure-closed; /* Ensures the triangle exists */
+    }
+
+    /* ONLY THE TRIANGLE IS RED */
+    details.learning-corner summary::marker {
+        color: #ff0033; 
+        font-size: 1.2em; /* Make the triangle a bit bigger */
+    }
+    
+    details.learning-corner summary:hover {
+        color: #b0b0b0; /* Light up text on hover */
+    }
+    
+    details.learning-corner[open] summary {
+        color: #b0b0b0;
+    }
+
+    /* THE POP-UP WINDOW */
+    .story-content {
+        position: absolute;
+        bottom: 160%; /* Moves it UP above the footer */
+        
+        /* WIDENED LAYOUT LOGIC */
+        right: -50px; /* Anchors somewhat to the right */
+        width: 700px; /* Much wider now (was 350px) */
+        max-width: 90vw; /* Safety for mobile */
+        max-height: 400px; 
+        overflow-y: auto; /* Allows scrolling */
+        
+        background-color: #050505;
+        border: 1px solid #ff0033; /* Red Border */
+        padding: 20px;
+        box-shadow: 0 0 30px rgba(0, 0, 0, 0.95);
+        z-index: 100;
+        
+        /* RED TEXT FOR STORY */
+        color: #ff0033; 
+        font-family: 'Courier New', monospace;
+        line-height: 1.4;
+        
+        /* ANIMATION */
+        opacity: 0;
+        transform: translateY(10px);
+        animation: slideUpFade 0.3s ease-out forwards;
+        
+        /* FIREFOX SCROLLBAR */
+        scrollbar-width: thin;
+        scrollbar-color: #ff0033 #0a0a0a;
+    }
+
+    /* CHROME/SAFARI/EDGE SCROLLBAR (To fix the grey) */
+    .story-content::-webkit-scrollbar {
+        width: 8px; /* Slightly wider to be visible */
+    }
+    .story-content::-webkit-scrollbar-track {
+        background: #0a0a0a; /* Black track */
+        border-left: 1px solid #333;
+    }
+    .story-content::-webkit-scrollbar-thumb {
+        background-color: #ff0033; /* RED THUMB */
+        border: 1px solid #000;
+    }
+    .story-content::-webkit-scrollbar-thumb:hover {
+        background-color: #cc0000;
+    }
+
+    @keyframes slideUpFade {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* MOBILE ADJUSTMENT */
+    @media (max-width: 750px) {
+        .story-content {
+            right: -10px;
+            width: 300px; /* Back to narrow on phones */
+            bottom: 120%;
+        }
+    }
+
+</style>
+</head>
 <body>
-    <main>
-      <section>
-        <a href="https://deno.com/deploy">
+
+<div class="container">
+    <!-- TRIANGLE START -->
+    <div class="triangle-video-frame">
+        <div class="triangle-inner-video">
+            <video autoplay muted loop playsinline>
+                <source src="https://github.com/ghostm68/666/raw/refs/heads/main/210644747.mp4" type="video/mp4">
+            </video>
+        </div>
+    </div>
+    
+    <h1>WordStar Nexus</h1>
+    <div class="subtitle">
+        <span>INKREALM SYSTEM ROOT V. 7.0</span>
+    </div>
+
+    <!-- APPLIANCES -->
+    <div class="grid">
+        <a href="/sitemap" class="module-link">
+            <div>
+                <span class="module-title">Nexus Map <span class="status-badge" style="color:#cc0000; border-color:#cc0000;">ACTIVE</span></span>
+                <span class="module-meta">MODERNIZED WORDSTAR CLI</span>
+            </div>
         </a>
-      <h1>
-        <p>
-          Hello, Deno!
-        </p>
-      </h1>
-      <p>
-        This little example is being served by <a href="https://deno.com/">Deno</a>.
-        You can run it locally or in porduction on <a href="https://deno.com/deploy">Deno Deploy</a> or other hosting platforms.
-      </p>
-      <ul>
-        <li>Run it locally with<code>deno task dev</code></li>
-        <li>Deploy it to <a href="https://deno.com/deploy">Deno Deploy</a> via the CLI by running<code>deno deploy</code></li>
-        <li>Run it locally and share it publically by running <code>deno deploy --connected</code></li>
-      </ul>
-    </section>
-      <hr>
-    <section>
-      <h2>What's next?</h2>
-      <p>
-        You can clone this example and deploy it to Deno Deploy in just a few clicks
-        <a href="https://app.deno.com/new?clone=https://github.com/denoland/examples&path=hello-world"><img src="https://deno.com/button" alt="Deploy on Deno"/></a>
-      </p>
-      <ul>
-        <li>
-          <a href="https://docs.deno.com/examples">More examples in the Deno Docs</a>
-        </li>
-        <li>
-          <a href="https://deno.com/deploy">Deno Deploy Early Access</a>
-        </li>
-      </ul>
-    </section>
-    </main>
-    <hr>
-    <footer>
-      <section>
-      <ul class="flex-btwn">
-        <li>
-          <a href="https://deno.com">BlueSky</a>
-        </li>
-        <li>
-          <a href="https://deno.com">Twitter</a>
-        </li>
-        <li>
-          <a href="https://deno.com">YouTube</a>
-        </li>
-        <li>
-          <a href="https://deno.com">Newsletter</a>
-        </li>
-        <li>
-          <a href="https://deno.com">Deno</a>
-        </li>
-      </ul>
-      </section>
-    </footer>
+
+        <a href="/directory" class="module-link">
+            <div>
+                <span class="module-title">directory <span class="status-badge">build</span></span>
+                <span class="module-meta">WORK IN PROGRESS PROTOCOL</span>
+            </div>
+        </a>
+
+        <a href="/cut+rune" class="module-link">
+            <div>
+                <span class="module-title">desk <span class="status-badge">TOOL</span></span>
+                <span class="module-meta">TEXT SURGERY</span>
+            </div>
+        </a>
+
+        <a href="/q" class="module-link">
+            <div>
+                <span class="module-title">Project Q <span class="status-badge">AI-NODE</span></span>
+                <span class="module-meta">GENERATIVE ENVIRONMENT</span>
+            </div>
+        </a>
+
+        <a href="https://inkrealm.info/sitemap" class="module-link">
+            <div>
+                <span class="module-title">inkrealm 3.0 <span class="status-badge">Map</span></span>
+                <span class="module-meta">CP/M ARCHIVE (2026)</span>
+            </div>
+        </a>
+
+         <a href="https://inkrealm.info/minraud" class="module-link">
+            <div>
+                <span class="module-title">inkrealm 3.0 <span class="status-badge">Nova</span></span>
+                <span class="module-meta">CP/Minraud (webllm)</span>
+            </div>
+        </a>
+    </div>
+
+    <!-- MANIFEST -->
+    <div class="manifest-section">
+        <div class="manifest-header">Primary Output // Manifest</div>
+        
+        <div class="manifest-row">
+            <span class="manifest-label">IDENTITY:</span>
+            <span class="manifest-data">INKREALM ("Inky") // Writer // Musician // Visual Artist</span>
+        </div>
+
+        <div class="manifest-row">
+            <span class="manifest-label">TEXT_FILES:</span>
+            <span class="manifest-data">
+                <a href="/dejavuglitches">DEJAVU_GLITCHES</a>
+                <a href="/dreamweaver">DREAMWEAVER</a>
+                <a href="/displaywriter">DISPLAYWRITER</a>
+                <a href="/ten">TEN</a>
+                <a href="/38">38</a>
+            </span>
+        </div>
+
+        <div class="manifest-row">
+            <span class="manifest-label">AUDIO_SIG:</span>
+            <span class="manifest-data">
+                "Two Skinny Girls" (Available on all streaming frequencies)
+            </span>
+        </div>
+
+        <div class="manifest-row">
+            <span class="manifest-label">CINEMA_DB:</span>
+            <span class="manifest-data">
+                <a href="/90263">FILE_90263</a>
+                <a href="/netherlands">THE_NETHERLANDS</a>
+            </span>
+        </div>
+
+        <div class="manifest-row">
+            <span class="manifest-label">VISUALS:</span>
+            <span class="manifest-data">
+                <a href="https://www.artpal.com/Inky" target="_blank">print$</a>
+                <a href="https://artbreeder.com/inkrealm" target="_blank">Artbreeder</a>
+                <a href="https://is.nota.live/@Inkrealm" class="dir-link" target="_blank">is.nota.live</a>
+                <a href="https://www.minds.com/inkrealm" class="dir-link" target="_blank">MINDS</a>
+                <a href="https://artstation.com/inkrealm" target="_blank">ArtStation</a>
+                <a href="https://behance.net/inkrealm" target="_blank">Behance</a>
+                <a href="https://vsco.co/inkrealm" target="_blank">VSCO</a>
+                <a href="https://paragraph.com/@inkrealm" class="dir-link" target="_blank">PARAGRAPH</a>
+                <a href="https://opensea.io/inkrealm" class="dir-link" target="_blank">OPENSEA</a>
+                <a href="https://www.are.na/ink-realm/wordstar" class="dir-link" target="_blank">ARE.NA</a>
+            </span>
+        </div>
+    </div>
+
+    <!-- NETWORK UPLINKS -->
+    <div class="directory-section">
+        <div class="directory-header">Network Uplinks // External Protocols</div>
+        <div class="directory-grid">
+            <a href="https://orcid.org/0009-0008-7073-0515" class="dir-link" target="_blank">ORCID</a>
+            <a href="https://www.crunchbase.com/organization/inkrealm" class="dir-link" target="_blank">CRUNCHBASE</a>
+            <a href="https://inkrealm.medium.com/prompt-and-circumstance-b9fd902861b1" class="dir-link" target="_blank">MEDIUM</a>
+            <a href="https://www.wattpad.com/user/inkrealm" class="dir-link" target="_blank">WATTPAD</a>
+            <a href="https://www.spatial.io/s/inkrealms-Next-World-6218fa3ed2b7ae0001fb9703" class="dir-link" target="_blank">SPATIAL</a>
+            <a href="https://vimeo.com/inkrealm" class="dir-link" target="_blank">vimeo</a>
+            <a href="https://bafybeih2krsr35gj6afanlglhec47ycvtjerr75rck24t4ahhf6i6pf6sm.ipfs.infura-ipfs.io/" class="dir-link" target="_blank">IPFS</a>   
+            <a href="https://www.pscp.tv/inkrealm" class="dir-link" target="_blank">PSCP</a>
+            <a href="https://soundcloud.com/inkrealm" class="dir-link" target="_blank">SOUNDCLOUD</a>
+            <a href="https://steemit.com/@inkrealm/posts" class="dir-link" target="_blank">steemit</a>
+            <a href="https://wordstar.gitbook.io/inkrealm" class="dir-link" target="_blank">git book</a>
+            <a href="https://www.redbubble.com/people/inky99/shop" class="dir-link" target="_blank">shop</a>
+        </div>
+    </div>
+
+    <!-- FOOTER WITH RED STORY BUTTON -->
+ <div class="system-footer">
+        <span>SYS.ADMIN: GHOST</span>
+        <span>STATUS: ONLINE: STORY 
+            <details class="learning-corner">
+                <summary>REDDIT: censored #001</summary>
+                
+                <div class="story-content">
+                    <p style="border-bottom: 1px solid #333; margin-bottom:15px; padding-bottom:5px; color:#fff; font-size: 0.9rem;">
+                        The Great AI Hustle: ARTIFICT.IO vs. The Silicon Overlords
+                    </p>
+                    
+                    <p style="font-size: 0.85rem;">
+                        > Six months ago, we were just six flat-broke nobodies scavenging the "Miscellaneous" aisle of a bankrupt Radio Shack. Derek—our self-appointed CEO—had been demoing a toaster he swore could mine Bitcoin if you fed it rye bread. The rest of us? We were there for the free extension cords and day-old donuts. When the sheriff slapped padlocks on the doors, we bolted with whatever still blinked: two wheezing beige towers, a CRT monitor that hummed the national anthem on boot-up, and a dot-matrix printer that only screamed in Portuguese. We crammed our loot into Derek's rustbucket van (license plate: "404-CEO") and peeled out to the nearest "incubator"—the back room of a shuttered escape-room joint in a strip mall. The previous tenants had ghosted, leaving plastic prop keys scattered around and a whiteboard scrawled with "FIND THE EXIT." We flipped it over, Sharpied "FIND THE EXIT… TO SUCCESS," and declared it our mission statement. Startup gospel. None of us could code beyond a Chrome extension that Nicolas Cage-ified cat videos. So we got scrappy. We printed the top 10,000 most-Googled questions ever, jammed them into mason jars labeled "Small Talk," "Existential Dread," "Mom's Tech Support," and "Conspiracy Theories." Then we memorized the highest-rated Yahoo Answers from 2009-2012. That was our "training data." Our "neural net"? Six brains on Red Bull and spite. We branded it ARTIFICT.IO—close enough to "artifact" to sound profound, fake enough to fool VCs until they squinted. Pitch deck? Slide 1: stock-photo robot stirring a pot of "Innovation Soup." Slide 2: same robot fleeing pitchfork-wielding villagers ("Disruption in Action"). Slide 3? A color-scanned pizza coupon for "one free large, no substitutions." Investors mailed checks before we hit "Q&A." To fake "round-the-clock machine learning," we ran staggered shifts: frantic Googling, copy-paste marathons, and thesaurus-fueled mad libs. Night crew drew the short straw—the dot-matrix printer jolted awake every 15 minutes, shrieking "CALIBRAÇÃO!" which we pretended was Portuguese for "genius at work." We kept a swear jar, but only for accidentally blurting truths like "This isn't AI, it's us in disguise." Month one: Series A funded entirely in coffee-stained quarters from a laundromat poker game. By month three, we'd "scaled." Our "chatbot," ARTIE, lived on the beige towers. Users typed queries into a chat window; we'd eavesdrop via baby monitors, rummage the jars, and hammer responses on a hidden keyboard. Latency? "Quantum thinking time." 95% accuracy? We banned bad jar pulls. Then the big leagues called. OpenAI dropped GPT-5, Anthropic unleashed Claude 3.5, and suddenly every valley bro wanted "the next big thing." Our Twitter hustle—memes of ARTIE "outsmarting" Siri with 2009 burn replies—went viral. Forbes dubbed us "The Underdogs Democratizing AI." Invites poured in: TechCrunch Disrupt, Y Combinator Demo Day, and—holy buzzword—a head-to-head "AI Bake-Off" against the giants at the Valley Vision Summit. Problem: Real AI could generate sonnets, code apps, and predict stocks. We had jars, caffeine, and a printer with identity issues. Solution? Hustle harder. We divided into "specialized models": - **Derek (CEO-GPT)**: Bullshit generator. Fed him pitch decks; he spewed unicorn valuations. - **Jenna (EmpathyBot)**: "Small Talk" jar queen. Turned "How's the weather?" into therapy sessions. - **Raj (CodeLord)**: Stack Overflow crib sheets. Wrote "Python" that was 90% emojis. - **Mia (VisionPro)**: Image deskewer on MS Paint. "Generated" art by recoloring stock photos. - **Carlos (QuantumPredictor)**: Poker face + coin flips. "99% accurate forecasts." - **Tasha (EthicsGuard)**: The truth swear jar. Vetoed anything too honest. Summit night: 5,000 nerds, Elon-level VCs, live-streamed to millions. Round 1: "Solve climate change." Real AIs spat 10-page whitepapers. ARTIE? Derek mashed jars: "Plant trees with blockchain. Tokenize squirrels. Disrupt!" Crowd ate it up—standing ovation for "human-centric innovation." Round 2: Live debate vs. GPT-5. Topic: "Is AI sentient?" GPT droned philosophy. We tag-teamed: Jenna empathized, Raj "coded" a sentience meme, Mia projected a glitchy robot selfie. Printer punctuated with "CALIBRAÇÃO!"—we sold it as "emergent consciousness." Finale: "Predict the next meme stock." Real AIs hedged with data. Carlos flipped his coin: "GameStop... again. With NFTs." It mooned 20% overnight. Pandemonium. By dawn, we'd "won" on audience vote. Sequoia led Series B at $500M valuation. No one peeked behind the curtain—not the VCs (too busy tweeting), not the press (too buzzword-drunk). We bought real servers with the cash, hired "engineers" (us in wigs), and kept the jars as "legacy IP." Today, ARTIFICT.IO powers half the Fortune 500's "AI assistants." We're not the smartest—just the hungriest. In a world of flawless algorithms, we proved six hustlers with scavenged junk and memorized Yahoo Answers could out-bluff the bots. The whiteboard still reads "FIND THE EXIT… TO SUCCESS." And damn if we didn't kick down the door.
+                    </p>
+                    
+                    <p style="text-align:right; font-size:0.7rem; color:#fff; margin-top:20px;">
+                        -the eNd- copyright 2026 inkrealm.info
+                    </p>
+                </div>
+            </details>
+        </span>
+        <span>DOMAIN: WORDSTAR.NEXUS</span>
+    </div>
+
+<script>
+    document.querySelector('h1').innerText = "";
+    let text = "WORDSTAR NEXUS";
+    let i = 0;
+    function typeWriter() {
+        if (i < text.length) {
+            document.querySelector('h1').innerHTML += text.charAt(i);
+            i++;
+            setTimeout(typeWriter, 100);
+        }
+    }
+    window.onload = typeWriter;
+</script>
+
 </body>
 </html>
